@@ -40,7 +40,7 @@ export default function UniversityList() {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://corsproxy.io/?https://universities.hipolabs.com/search?country=${encodeURIComponent(countryName)}`,
+        `/api/universities/search?country=${encodeURIComponent(countryName)}`,
       );
 
       if (!response.ok)
