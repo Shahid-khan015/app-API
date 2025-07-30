@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button, Form, Spinner, Alert, Badge } from 'react-bootstrap';
 
 export default function UniversityList() {
   const [universities, setUniversities] = useState([]);
@@ -45,150 +46,151 @@ export default function UniversityList() {
 
   return (
     <div className="page-container">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+      <Container>
+        <div className="text-center mb-4">
+          <h1 className="display-5 fw-bold text-dark mb-3">
             University Explorer
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="lead text-muted">
             Discover universities from around the world
           </p>
         </div>
 
         {/* Search Section */}
-        <div className="content-card mb-8 max-w-2xl mx-auto">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
-                Search by Country
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  id="country"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Enter country name..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={loading}
-                >
-                  {loading ? 'Searching...' : 'Search'}
-                </button>
+        <Card className="content-card mb-4">
+          <Card.Body>
+            <Form onSubmit={handleSearch}>
+              <Row className="align-items-end">
+                <Col md={8}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-medium">Search by Country</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="Enter country name..."
+                      className="form-control-lg"
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    className="btn-primary-custom w-100 mb-3"
+                    disabled={loading}
+                  >
+                    {loading ? 'Searching...' : 'Search'}
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+
+            <div className="mt-3">
+              <small className="text-muted d-block mb-2">Popular countries:</small>
+              <div className="d-flex flex-wrap gap-2">
+                {popularCountries.map((countryName) => (
+                  <Badge
+                    key={countryName}
+                    bg={country === countryName ? 'primary' : 'secondary'}
+                    pill
+                    role="button"
+                    onClick={() => {
+                      setSearchInput(countryName);
+                      setCountry(countryName);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {countryName}
+                  </Badge>
+                ))}
               </div>
             </div>
-          </form>
-
-          {/* Popular Countries */}
-          <div className="mt-6">
-            <p className="text-sm text-gray-600 mb-3">Popular countries:</p>
-            <div className="flex flex-wrap gap-2">
-              {popularCountries.map((countryName) => (
-                <button
-                  key={countryName}
-                  onClick={() => {
-                    setSearchInput(countryName);
-                    setCountry(countryName);
-                  }}
-                  className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                    country === countryName
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {countryName}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Results */}
-        {loading && (
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
-            <p className="mt-4 text-xl text-gray-600">Searching universities...</p>
-          </div>
-        )}
+          </Card.Body>
+        </Card>
 
         {error && (
-          <div className="content-card max-w-md mx-auto text-center">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button onClick={() => fetchUniversities(country)} className="btn-primary">
+          <Alert variant="danger" className="mb-4">
+            <Alert.Heading>Error!</Alert.Heading>
+            <p>{error}</p>
+            <Button variant="outline-danger" onClick={() => fetchUniversities(country)}>
               Try Again
-            </button>
-          </div>
+            </Button>
+          </Alert>
         )}
 
-        {!loading && !error && universities.length > 0 && (
-          <div>
-            <div className="mb-6 text-center">
-              <h2 className="text-2xl font-semibold text-gray-800">
-                Found {universities.length} universities in {country}
-              </h2>
-            </div>
+        {loading ? (
+          <div className="text-center py-5">
+            <Spinner animation="border" variant="primary" />
+            <p className="mt-3 text-muted">Loading universities...</p>
+          </div>
+        ) : (
+          <>
+            {universities.length > 0 && (
+              <div className="mb-3">
+                <h5 className="text-muted">
+                  Found {universities.length} universities in {country}
+                </h5>
+              </div>
+            )}
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Row className="g-3">
               {universities.map((university, index) => (
-                <div key={index} className="content-card">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                    {university.name}
-                  </h3>
-                  
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center">
-                      <span className="text-gray-600 mr-2">🌍</span>
-                      <span className="text-gray-700">{university.country}</span>
-                    </div>
-                    
-                    {university.state_province && (
-                      <div className="flex items-center">
-                        <span className="text-gray-600 mr-2">📍</span>
-                        <span className="text-gray-700">{university.state_province}</span>
+                <Col key={index} md={6} lg={4}>
+                  <Card className="content-card h-100">
+                    <Card.Body>
+                      <Card.Title className="h6 fw-bold text-dark mb-2">
+                        {university.name}
+                      </Card.Title>
+                      
+                      <div className="mb-2">
+                        <small className="text-muted d-block">Country</small>
+                        <span className="fw-medium">{university.country}</span>
                       </div>
-                    )}
-                    
-                    {university.domains && university.domains.length > 0 && (
-                      <div className="flex items-center">
-                        <span className="text-gray-600 mr-2">🌐</span>
-                        <span className="text-gray-700">{university.domains[0]}</span>
-                      </div>
-                    )}
-                  </div>
 
-                  {university.web_pages && university.web_pages.length > 0 && (
-                    <div className="mt-4">
-                      <a
-                        href={university.web_pages[0]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-primary text-sm w-full text-center inline-block"
-                      >
-                        Visit Website
-                      </a>
-                    </div>
-                  )}
-                </div>
+                      {university['state-province'] && (
+                        <div className="mb-2">
+                          <small className="text-muted d-block">State/Province</small>
+                          <span className="fw-medium">{university['state-province']}</span>
+                        </div>
+                      )}
+
+                      {university.domains && university.domains.length > 0 && (
+                        <div className="mb-3">
+                          <small className="text-muted d-block">Domain</small>
+                          <code className="text-primary">{university.domains[0]}</code>
+                        </div>
+                      )}
+
+                      {university.web_pages && university.web_pages.length > 0 && (
+                        <div className="mt-auto">
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            href={university.web_pages[0]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-100"
+                          >
+                            Visit Website →
+                          </Button>
+                        </div>
+                      )}
+                    </Card.Body>
+                  </Card>
+                </Col>
               ))}
-            </div>
-          </div>
-        )}
+            </Row>
 
-        {!loading && !error && universities.length === 0 && country && (
-          <div className="content-card max-w-md mx-auto text-center">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              No Universities Found
-            </h2>
-            <p className="text-gray-600">
-              No universities found for "{country}". Try searching for a different country.
-            </p>
-          </div>
+            {universities.length === 0 && !loading && (
+              <div className="text-center py-5">
+                <h5 className="text-muted">No universities found for "{country}"</h5>
+                <p className="text-muted">Try searching for a different country.</p>
+              </div>
+            )}
+          </>
         )}
-      </div>
+      </Container>
     </div>
   );
 }

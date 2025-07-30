@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
+import { Container, Card, Button, Spinner, Alert } from 'react-bootstrap';
 
 export default function RandomQuote() {
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [quoteHistory, setQuoteHistory] = useState([]);
 
   useEffect(() => {
     fetchRandomQuote();
@@ -18,7 +17,6 @@ export default function RandomQuote() {
       if (!response.ok) throw new Error('Failed to fetch quote');
       const data = await response.json();
       setQuote(data);
-      setQuoteHistory(prev => [data, ...prev].slice(0, 5)); // Keep last 5 quotes
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -27,91 +25,66 @@ export default function RandomQuote() {
     }
   };
 
-  if (loading && !quote) {
-    return (
-      <div className="page-container">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-xl text-gray-600">Loading inspiration...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error && !quote) {
-    return (
-      <div className="page-container">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="content-card max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button onClick={fetchRandomQuote} className="btn-primary">
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="page-container">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+      <Container>
+        <div className="text-center mb-5">
+          <h1 className="display-5 fw-bold text-dark mb-3">
             Random Quotes
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="lead text-muted">
             Get inspired with wisdom from around the world
           </p>
         </div>
 
-        {quote && (
-          <div className="content-card mb-8 text-center bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
-            <div className="text-6xl text-purple-300 mb-4">"</div>
-            <blockquote className="text-2xl font-medium text-gray-800 mb-6 italic">
-              {quote.quote}
-            </blockquote>
-            <div className="flex items-center justify-center">
-              <div className="w-12 h-px bg-purple-300 mr-4"></div>
-              <cite className="text-lg text-purple-600 font-semibold not-italic">
-                {quote.author}
-              </cite>
-              <div className="w-12 h-px bg-purple-300 ml-4"></div>
-            </div>
-          </div>
+        {error && (
+          <Alert variant="danger" className="mb-4">
+            <Alert.Heading>Error!</Alert.Heading>
+            <p>{error}</p>
+            <Button variant="outline-danger" onClick={fetchRandomQuote}>
+              Try Again
+            </Button>
+          </Alert>
         )}
 
-        <div className="text-center mb-8">
-          <button 
-            onClick={fetchRandomQuote} 
-            className="btn-primary bg-purple-600 hover:bg-purple-700"
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : 'Get New Quote'}
-          </button>
-        </div>
-
-        {quoteHistory.length > 1 && (
-          <div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Recent Quotes
-            </h3>
-            <div className="space-y-4">
-              {quoteHistory.slice(1).map((historyQuote, index) => (
-                <div key={index} className="content-card bg-gray-50">
-                  <blockquote className="text-lg text-gray-700 mb-3 italic">
-                    "{historyQuote.quote}"
+        {loading ? (
+          <div className="text-center py-5">
+            <Spinner animation="border" variant="primary" />
+            <p className="mt-3 text-muted">Loading inspirational quote...</p>
+          </div>
+        ) : quote ? (
+          <div className="quote-container">
+            <Card className="border-0 shadow">
+              <Card.Body className="p-4">
+                <div className="text-center mb-4">
+                  <div className="display-1 text-primary mb-3">"</div>
+                  <blockquote className="blockquote mb-4">
+                    <p className="lead fw-normal text-dark">
+                      {quote.quote}
+                    </p>
                   </blockquote>
-                  <cite className="text-purple-600 font-medium not-italic">
-                    — {historyQuote.author}
-                  </cite>
+                  <footer className="blockquote-footer">
+                    <cite className="fw-semibold text-primary fs-5">
+                      {quote.author}
+                    </cite>
+                  </footer>
                 </div>
-              ))}
-            </div>
+
+                <div className="text-center">
+                  <Button 
+                    variant="primary" 
+                    onClick={fetchRandomQuote}
+                    className="btn-primary-custom"
+                    disabled={loading}
+                  >
+                    {loading ? 'Loading...' : 'Get New Quote'}
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
           </div>
-        )}
-      </div>
+        ) : null}
+      </Container>
     </div>
   );
 }

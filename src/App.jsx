@@ -1,5 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import HomePage from './pages/HomePage';
 import CryptoPrices from './pages/CryptoPrices';
@@ -10,7 +11,7 @@ import Navbar from './components/Navbar';
 export default function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="min-vh-100" style={{ background: 'linear-gradient(135deg, #f9fafb 0%, #e0f2fe 100%)' }}>
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />

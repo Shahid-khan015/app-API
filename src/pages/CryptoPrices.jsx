@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
 
 export default function CryptoPrices() {
-  const [cryptos, setCryptos] = useState([]);
+  const [cryptoData, setCryptoData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -16,7 +17,7 @@ export default function CryptoPrices() {
       const response = await fetch('https://api.coinlore.net/api/tickers/');
       if (!response.ok) throw new Error('Failed to fetch crypto data');
       const data = await response.json();
-      setCryptos(data.data.slice(0, 20)); // Show top 20
+      setCryptoData(data.data.slice(0, 20)); // Show top 20
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -25,93 +26,105 @@ export default function CryptoPrices() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="page-container">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-xl text-gray-600">Loading crypto data...</p>
-        </div>
-      </div>
-    );
-  }
+  const formatPrice = (price) => {
+    return parseFloat(price).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6
+    });
+  };
 
-  if (error) {
+  const formatPercentage = (percent) => {
+    const num = parseFloat(percent);
     return (
-      <div className="page-container">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="content-card max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button onClick={fetchCryptoData} className="btn-primary">
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
+      <span className={num >= 0 ? 'text-success' : 'text-danger'}>
+        {num >= 0 ? '+' : ''}{num.toFixed(2)}%
+      </span>
     );
-  }
+  };
 
   return (
     <div className="page-container">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+      <Container>
+        <div className="text-center mb-4">
+          <h1 className="display-5 fw-bold text-dark mb-3">
             Cryptocurrency Prices
           </h1>
-          <p className="text-xl text-gray-600">
-            Real-time crypto market data powered by CoinLore API
+          <p className="lead text-muted">
+            Real-time cryptocurrency market data
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {cryptos.map((crypto) => (
-            <div key={crypto.id} className="content-card">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {crypto.name}
-                </h3>
-                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                  {crypto.symbol}
-                </span>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Price:</span>
-                  <span className="font-semibold text-gray-800">
-                    ${parseFloat(crypto.price_usd).toLocaleString()}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600">24h Change:</span>
-                  <span className={`font-semibold ${
-                    parseFloat(crypto.percent_change_24h) >= 0 
-                      ? 'text-green-600' 
-                      : 'text-red-600'
-                  }`}>
-                    {crypto.percent_change_24h}%
-                  </span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Market Cap:</span>
-                  <span className="font-semibold text-gray-800">
-                    ${parseInt(crypto.market_cap_usd).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {error && (
+          <Alert variant="danger" className="mb-4">
+            <Alert.Heading>Error!</Alert.Heading>
+            <p>{error}</p>
+            <Button variant="outline-danger" onClick={fetchCryptoData}>
+              Try Again
+            </Button>
+          </Alert>
+        )}
 
-        <div className="text-center mt-8">
-          <button onClick={fetchCryptoData} className="btn-secondary">
-            Refresh Data
-          </button>
-        </div>
-      </div>
+        {loading ? (
+          <div className="text-center py-5">
+            <Spinner animation="border" variant="primary" />
+            <p className="mt-3 text-muted">Loading cryptocurrency data...</p>
+          </div>
+        ) : (
+          <>
+            <Row className="g-3">
+              {cryptoData.map((crypto) => (
+                <Col key={crypto.id} md={6} lg={4}>
+                  <Card className="crypto-card h-100">
+                    <Card.Body>
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                          <Card.Title className="h6 fw-bold text-dark">
+                            {crypto.name}
+                          </Card.Title>
+                          <small className="text-muted">{crypto.symbol}</small>
+                        </div>
+                        <small className="text-muted">#{crypto.rank}</small>
+                      </div>
+                      
+                      <div className="mb-2">
+                        <div className="fw-semibold text-primary">
+                          {formatPrice(crypto.price_usd)}
+                        </div>
+                      </div>
+                      
+                      <Row className="g-2">
+                        <Col xs={6}>
+                          <small className="text-muted d-block">24h Change</small>
+                          <div className="fw-medium">
+                            {formatPercentage(crypto.percent_change_24h)}
+                          </div>
+                        </Col>
+                        <Col xs={6}>
+                          <small className="text-muted d-block">Market Cap</small>
+                          <div className="fw-medium">
+                            ${parseFloat(crypto.market_cap_usd).toLocaleString('en-US', {
+                              notation: 'compact',
+                              maximumFractionDigits: 2
+                            })}
+                          </div>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+
+            <div className="text-center mt-4">
+              <Button variant="secondary" onClick={fetchCryptoData} className="btn-secondary-custom">
+                Refresh Data
+              </Button>
+            </div>
+          </>
+        )}
+      </Container>
     </div>
   );
 }
