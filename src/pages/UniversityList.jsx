@@ -1,17 +1,33 @@
-
-import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Form, Spinner, Alert, Badge } from 'react-bootstrap';
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Form,
+  Spinner,
+  Alert,
+} from "react-bootstrap";
 
 export default function UniversityList() {
   const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [country, setCountry] = useState('United States');
-  const [searchInput, setSearchInput] = useState('United States');
+  const [country, setCountry] = useState("United States");
+  const [searchInput, setSearchInput] = useState("United States");
 
   const popularCountries = [
-    'United States', 'United Kingdom', 'Canada', 'Australia', 
-    'Germany', 'France', 'Japan', 'China', 'India', 'Brazil'
+    "United States",
+    "United Kingdom",
+    "Canada",
+    "Australia",
+    "Germany",
+    "France",
+    "Japan",
+    "China",
+    "India",
+    "Brazil",
   ];
 
   useEffect(() => {
@@ -24,11 +40,14 @@ export default function UniversityList() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://universities.hipolabs.com/search?country=${encodeURIComponent(countryName)}`
+        `https://corsproxy.io/?https://universities.hipolabs.com/search?country=${encodeURIComponent(countryName)}`,
       );
-      if (!response.ok) throw new Error('Failed to fetch universities');
+
+      if (!response.ok)
+        throw new Error(`Failed to fetch universities: ${response.status}`);
+
       const data = await response.json();
-      setUniversities(data.slice(0, 50)); // Limit to 50 results
+      setUniversities(data.slice(0, 50));
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -56,14 +75,15 @@ export default function UniversityList() {
           </p>
         </div>
 
-        {/* Search Section */}
         <Card className="content-card mb-4">
           <Card.Body>
             <Form onSubmit={handleSearch}>
               <Row className="align-items-end">
                 <Col md={8}>
                   <Form.Group className="mb-3">
-                    <Form.Label className="fw-medium">Search by Country</Form.Label>
+                    <Form.Label className="fw-medium">
+                      Search by Country
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       value={searchInput}
@@ -80,89 +100,63 @@ export default function UniversityList() {
                     className="btn-primary-custom w-100 mb-3"
                     disabled={loading}
                   >
-                    {loading ? 'Searching...' : 'Search'}
+                    {loading ? "Searching..." : "Search"}
                   </Button>
                 </Col>
               </Row>
             </Form>
-
-            <div className="mt-3">
-              <small className="text-muted d-block mb-2">Popular countries:</small>
-              <div className="d-flex flex-wrap gap-2">
-                {popularCountries.map((countryName) => (
-                  <Badge
-                    key={countryName}
-                    bg={country === countryName ? 'primary' : 'secondary'}
-                    pill
-                    role="button"
-                    onClick={() => {
-                      setSearchInput(countryName);
-                      setCountry(countryName);
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {countryName}
-                  </Badge>
-                ))}
-              </div>
-            </div>
           </Card.Body>
         </Card>
-
-        {error && (
-          <Alert variant="danger" className="mb-4">
-            <Alert.Heading>Error!</Alert.Heading>
-            <p>{error}</p>
-            <Button variant="outline-danger" onClick={() => fetchUniversities(country)}>
-              Try Again
-            </Button>
-          </Alert>
-        )}
 
         {loading ? (
           <div className="text-center py-5">
             <Spinner animation="border" variant="primary" />
             <p className="mt-3 text-muted">Loading universities...</p>
           </div>
+        ) : error ? (
+          <Alert variant="danger">
+            <Alert.Heading>Error!</Alert.Heading>
+            <p>{error}</p>
+            <Button
+              variant="outline-danger"
+              onClick={() => fetchUniversities(country)}
+            >
+              Try Again
+            </Button>
+          </Alert>
         ) : (
-          <>
-            {universities.length > 0 && (
-              <div className="mb-3">
-                <h5 className="text-muted">
-                  Found {universities.length} universities in {country}
-                </h5>
-              </div>
-            )}
-
-            <Row className="g-3">
-              {universities.map((university, index) => (
-                <Col key={index} md={6} lg={4}>
-                  <Card className="content-card h-100">
-                    <Card.Body>
-                      <Card.Title className="h6 fw-bold text-dark mb-2">
-                        {university.name}
-                      </Card.Title>
-                      
+          <Row className="g-3">
+            {universities.map((university, index) => (
+              <Col key={index} md={6} lg={4}>
+                <Card className="content-card h-100">
+                  <Card.Body>
+                    <Card.Title className="h6 fw-bold text-dark mb-2">
+                      {university.name}
+                    </Card.Title>
+                    <div className="mb-2">
+                      <small className="text-muted d-block">Country</small>
+                      <span className="fw-medium">{university.country}</span>
+                    </div>
+                    {university["state-province"] && (
                       <div className="mb-2">
-                        <small className="text-muted d-block">Country</small>
-                        <span className="fw-medium">{university.country}</span>
+                        <small className="text-muted d-block">
+                          State/Province
+                        </small>
+                        <span className="fw-medium">
+                          {university["state-province"]}
+                        </span>
                       </div>
-
-                      {university['state-province'] && (
-                        <div className="mb-2">
-                          <small className="text-muted d-block">State/Province</small>
-                          <span className="fw-medium">{university['state-province']}</span>
-                        </div>
-                      )}
-
-                      {university.domains && university.domains.length > 0 && (
-                        <div className="mb-3">
-                          <small className="text-muted d-block">Domain</small>
-                          <code className="text-primary">{university.domains[0]}</code>
-                        </div>
-                      )}
-
-                      {university.web_pages && university.web_pages.length > 0 && (
+                    )}
+                    {university.domains && university.domains.length > 0 && (
+                      <div className="mb-3">
+                        <small className="text-muted d-block">Domain</small>
+                        <code className="text-primary">
+                          {university.domains[0]}
+                        </code>
+                      </div>
+                    )}
+                    {university.web_pages &&
+                      university.web_pages.length > 0 && (
                         <div className="mt-auto">
                           <Button
                             variant="outline-primary"
@@ -176,19 +170,11 @@ export default function UniversityList() {
                           </Button>
                         </div>
                       )}
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-
-            {universities.length === 0 && !loading && (
-              <div className="text-center py-5">
-                <h5 className="text-muted">No universities found for "{country}"</h5>
-                <p className="text-muted">Try searching for a different country.</p>
-              </div>
-            )}
-          </>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
         )}
       </Container>
     </div>
