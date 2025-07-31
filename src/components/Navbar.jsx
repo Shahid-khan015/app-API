@@ -9,7 +9,7 @@ export default function CustomNavbar() {
     { path: '/', label: 'Home' },
     { path: '/crypto', label: 'Crypto Prices' },
     { path: '/quotes', label: 'Random Quotes' },
-    { path: '/universities', label: 'Universities' }
+    { path: '/universities', label: 'COVID-19 Cases' }
   ];
 
   return (
