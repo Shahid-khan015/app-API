@@ -19,11 +19,19 @@ export default function HomePage() {
       color: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
     },
     {
-      title: 'Universities',
-      description: 'Search and explore universities from around the world',
+      title: 'COVID-19 Stats',
+      description: 'View global COVID-19 statistics and data by country',
       path: '/universities',
-      icon: '🎓',
+      icon: '🦠',
       color: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)'
+    },
+    {
+      title: 'Job Finder',
+      description: 'Find your next career opportunity with our job search platform',
+      path: 'https://job-sprint-app.vercel.app/',
+      icon: '🚀',
+      color: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+      external: true
     }
   ];
 
@@ -42,46 +50,55 @@ export default function HomePage() {
         <Row className="g-4 mb-5">
           {navigationCards.map((card, index) => (
             <Col key={index} md={6} lg={4}>
-              <Link to={card.path} className="text-decoration-none">
-                <Card className="nav-card h-100 p-4 text-center">
-                  <div 
-                    className="gradient-icon"
-                    style={{ background: card.color }}
-                  >
-                    {card.icon}
-                  </div>
-                  <Card.Body>
-                    <Card.Title className="h5 fw-semibold text-dark mb-3">
-                      {card.title}
-                    </Card.Title>
-                    <Card.Text className="text-muted">
-                      {card.description}
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Link>
+              {card.external ? (
+                <a 
+                  href={card.path} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-decoration-none"
+                >
+                  <Card className="nav-card h-100 p-4 text-center">
+                    <div 
+                      className="gradient-icon"
+                      style={{ background: card.color }}
+                    >
+                      {card.icon}
+                    </div>
+                    <Card.Body>
+                      <Card.Title className="h5 fw-semibold text-dark mb-3">
+                        {card.title}
+                      </Card.Title>
+                      <Card.Text className="text-muted">
+                        {card.description}
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </a>
+              ) : (
+                <Link to={card.path} className="text-decoration-none">
+                  <Card className="nav-card h-100 p-4 text-center">
+                    <div 
+                      className="gradient-icon"
+                      style={{ background: card.color }}
+                    >
+                      {card.icon}
+                    </div>
+                    <Card.Body>
+                      <Card.Title className="h5 fw-semibold text-dark mb-3">
+                        {card.title}
+                      </Card.Title>
+                      <Card.Text className="text-muted">
+                        {card.description}
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Link>
+              )}
             </Col>
           ))}
         </Row>
 
-        <div className="text-center">
-          <Card className="content-card d-inline-block">
-            <Card.Body>
-              <h3 className="h5 fw-semibold text-dark mb-3">External Resources</h3>
-              <p className="text-muted mb-3">
-                Looking for job opportunities? Check out our external job finder!
-              </p>
-              <a
-                href="https://job-sprint-app.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary btn-primary-custom text-decoration-none"
-              >
-                Visit Job Finder 🚀
-              </a>
-            </Card.Body>
-          </Card>
-        </div>
+        
       </Container>
     </div>
   );
