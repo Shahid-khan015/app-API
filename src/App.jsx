@@ -5,7 +5,7 @@ import './App.css';
 import HomePage from './pages/HomePage';
 import CryptoPrices from './pages/CryptoPrices';
 import RandomQuote from './pages/RandomQuote';
-import UniversityList from './pages/UniversityList';
+import CovidStats from './pages/UniversityList';
 import Navbar from './components/Navbar';
 
 export default function App() {
@@ -17,7 +17,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/crypto" element={<CryptoPrices />} />
           <Route path="/quotes" element={<RandomQuote />} />
-          <Route path="/universities" element={<UniversityList />} />
+          <Route path="/universities" element={<CovidStats />} />
         </Routes>
       </div>
     </Router>
